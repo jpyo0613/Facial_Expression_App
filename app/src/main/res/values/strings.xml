@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">ImagePro</string>
+    <string name="app_name">감정인식</string>
+    <string name="pick">찍기</string>
+
+    <!-- 경고 문구 -->
+    <string name="warning_title">경고문</string>
+    <string name="warning_content">이 앱은 상대방 얼굴 영상을 사용합니다.\n반드시 상대방의 동의를 얻고 사용하세요.\n이어폰 사용을 권장합니다.</string>
+
+    <!-- 메인 화면 -->
+    <string name="mode_basic">기본 모드</string>
+    <string name="mode_basic_hint">고대비, 음성안내</string>
+    <string name="mode_non">비시각장애인 모드</string>
+
 </resources>
