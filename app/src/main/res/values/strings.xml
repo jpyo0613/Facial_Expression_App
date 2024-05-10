@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">감정인식</string>
-    <string name="pick">찍기</string>
 
     <!-- 경고 문구 -->
     <string name="warning_title">경고문</string>
@@ -11,5 +10,14 @@
     <string name="mode_basic_hint">고대비, 음성안내</string>
     <string name="mode_non">비시각장애인 모드</string>
     <string name="guide_tts">화면 위쪽을 터치하면 시작합니다</string>
+
+    <!-- 카메라 화면 -->
+    <string name="surprise">놀람</string>
+    <string name="fear">무서움</string>
+    <string name="angry">화남</string>
+    <string name="neutral">평온함</string>
+    <string name="sad">슬픔</string>
+    <string name="disgust">싫어함</string>
+    <string name="happy">행복함</string>
 
 </resources>

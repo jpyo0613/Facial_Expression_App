@@ -29,7 +29,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
 
 public class facialExpressionRecognition {
     // define interpreter
@@ -48,7 +47,7 @@ public class facialExpressionRecognition {
     private CascadeClassifier cascadeClassifier;
 
     // now call this in CameraActivity
-    facialExpressionRecognition(AssetManager assetManager, Context context, String modelPath, int inputSize) throws IOException {
+    public facialExpressionRecognition(AssetManager assetManager, Context context, String modelPath, int inputSize) throws IOException {
         INPUT_SIZE = inputSize;
         // set GPU for the interpreter
         Interpreter.Options options = new Interpreter.Options();
@@ -108,7 +107,7 @@ public class facialExpressionRecognition {
     // Create a new function
     // input and output are in Mat format
     // call this in onCameraframe of CameraActivity
-    public Mat recognizeImage(Mat mat_image) {
+    public Result recognizeImage(Mat mat_image) {
         // before predicting
         // our image is not properly align
         // we have to rotate it by 90 degree for proper prediction
@@ -135,18 +134,25 @@ public class facialExpressionRecognition {
             // minimum size
         }
 
+        // 결과 (현재는 다수의 인원은 디텍팅 이상하게 될 수 있음)
+        Result result;
+        ResultType resultType = ResultType.NEUTRAL;
+
         // now convert it to array
         Rect[] faceArray = faces.toArray();
         // loop through each face
-        for (int i = 0; i < faceArray.length; i++) {
+        for (Rect rect : faceArray) {
             // if you want to draw rectangle around face
-            //                input/output starting point ending point        color   R  G  B  alpha    thickness
-            Imgproc.rectangle(mat_image, faceArray[i].tl(), faceArray[i].br(), new Scalar(0, 255, 0, 255), 2);
+            //                input/output starting point ending point        color   R  G  B  alpha
+            //                thickness
+            if (Constants.CAMERA_BOX) {
+                Imgproc.rectangle(mat_image, rect.tl(), rect.br(), new Scalar(0, 255, 0, 255), 2);
+            }
             // now crop face from original frame and grayscaleImage
             // starting x coordinate       starting y coordinate
-            Rect roi = new Rect((int) faceArray[i].tl().x, (int) faceArray[i].tl().y,
-                    ((int) faceArray[i].br().x) - (int) (faceArray[i].tl().x),
-                    ((int) faceArray[i].br().y) - (int) (faceArray[i].tl().y));
+            Rect roi = new Rect((int) rect.tl().x, (int) rect.tl().y,
+                    ((int) rect.br().x) - (int) (rect.tl().x),
+                    ((int) rect.br().y) - (int) (rect.tl().y));
             // it's very important check one more time
             Mat cropped_rgba = new Mat(mat_image, roi);//
             // now convert cropped_rgba to bitmap
@@ -167,13 +173,16 @@ public class facialExpressionRecognition {
             float emotion_v = (float) Array.get(Array.get(emotion, 0), 0);
             Log.d("facial_expression", "Output:  " + emotion_v);
             // create a function that return text emotion
-            String emotion_s = get_emotion_text(emotion_v);
+            resultType = get_emotion_text(emotion_v);
             // now put text on original frame(mat_image)
             //             input/output    text: Angry (2.934234)
-            Imgproc.putText(mat_image, emotion_s + " (" + emotion_v + ")",
-                    new Point((int) faceArray[i].tl().x + 10, (int) faceArray[i].tl().y + 20),
-                    1, 1.5, new Scalar(0, 0, 255, 150), 2);
-            //      use to scale text      color     R G  B  alpha    thickness
+
+            if (Constants.CAMERA_BOX) {
+                Imgproc.putText(mat_image, resultType + " (" + emotion_v + ")",
+                        new Point((int) rect.tl().x + 10, (int) rect.tl().y + 20),
+                        1, 1.5, new Scalar(0, 0, 255, 150), 2);
+                //      use to scale text      color     R G  B  alpha    thickness
+            }
 
             // select device and run
             // Everything is working fine
@@ -181,39 +190,38 @@ public class facialExpressionRecognition {
             // If you want me to improve model comment below
             // This model had average accuracy it can be improve
             // Bye
-
         }
-
 
         // after prediction
         // rotate mat_image -90 degree
         Core.flip(mat_image.t(), mat_image, 0);
-        return mat_image;
+        result = new Result(resultType, mat_image);
+        return result;
     }
 
-    private String get_emotion_text(float emotion_v) {
+    private ResultType get_emotion_text(float emotion_v) {
         // create an empty string
-        String val = "";
+        ResultType resultType;
         // use if statement to determine val
         // You can change starting value and ending value to get better result
         // Like
 
         if (emotion_v >= 0 & emotion_v < 0.5) {
-            val = "Surprise";
+            resultType = ResultType.SURPRISE;
         } else if (emotion_v >= 0.5 & emotion_v < 1.5) {
-            val = "Fear";
+            resultType = ResultType.FEAR;
         } else if (emotion_v >= 1.5 & emotion_v < 2.5) {
-            val = "Angry";
+            resultType = ResultType.ANGRY;
         } else if (emotion_v >= 2.5 & emotion_v < 3.5) {
-            val = "Neutral";
+            resultType = ResultType.NEUTRAL;
         } else if (emotion_v >= 3.5 & emotion_v < 4.5) {
-            val = "Sad";
+            resultType = ResultType.SAD;
         } else if (emotion_v >= 4.5 & emotion_v < 5.5) {
-            val = "Disgust";
+            resultType = ResultType.DISGUST;
         } else {
-            val = "Happy";
+            resultType = ResultType.HAPPY;
         }
-        return val;
+        return resultType;
     }
 
     private ByteBuffer convertBitmapToByteBuffer(Bitmap scaledBitmap) {

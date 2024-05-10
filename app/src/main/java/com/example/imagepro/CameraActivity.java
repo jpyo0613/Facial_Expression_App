@@ -10,10 +10,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -23,37 +24,31 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 import java.io.IOException;
+import java.util.Locale;
 
-public class CameraActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
-    private static final String TAG = "MainActivity";
-
+public class CameraActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, ResultCalculator.Listener {
+    private static final String TAG = "CameraActivity";
     private Mat mRgba;
-    private Mat mGray;
     private CameraBridgeViewBase mOpenCvCameraView;
-    // call java class
     private facialExpressionRecognition facialExpressionRecognition;
 
-    private Button pickBtn;
+    private ResultCalculator resultCalculator = new ResultCalculator(this);
 
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+    private final BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface
-                        .SUCCESS: {
-                    Log.i(TAG, "OpenCv Is loaded");
-                    mOpenCvCameraView.enableView();
-                }
-                default: {
-                    super.onManagerConnected(status);
-
-                }
-                break;
+            if (status == LoaderCallbackInterface
+                    .SUCCESS) {
+                Log.i(TAG, "OpenCv Is loaded");
+                mOpenCvCameraView.enableView();
             }
+            super.onManagerConnected(status);
         }
     };
 
     private boolean isModeBasic = true;
+    private TextView resultTv;
+    private TextToSpeech tts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,27 +71,40 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             isModeBasic = intent.getBooleanExtra(Constants.KEY_CAMERA_IS_BASIC_MODE, true);
         }
 
-        // 툴바 (뒤로가기, 앱이름)
         Toolbar toolbar = findViewById(R.id.toolbar);
+        mOpenCvCameraView = findViewById(R.id.frame_Surface);
+        resultTv = findViewById(R.id.tv_result);
+
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        // 찍기 버튼 초기화
-        pickBtn = (Button) findViewById(R.id.btn_pick);
-        pickBtn.setOnClickListener(view -> {
-
-        });
-
-        // 카메라 셋팅
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.frame_Surface);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+        // 비시각장애인 모드 색상
+        if (!isModeBasic) {
+            int backgroundColor = ContextCompat.getColor(this, R.color.light_blue);
+            toolbar.setBackgroundColor(backgroundColor);
+            resultTv.setBackgroundColor(backgroundColor);
+        }
+
+        tts = new TextToSpeech(this, status -> {
+            if (status != TextToSpeech.ERROR) {
+                tts.setLanguage(Locale.KOREAN);
+                tts.setPitch(Constants.TTS_PITCH);
+                tts.setSpeechRate(Constants.TTS_RATE);
+            }
+        });
 
         try {
             // input size of model is 48
             int inputSize = 48;
-            facialExpressionRecognition = new facialExpressionRecognition(getAssets(), CameraActivity.this,
-                    "newmodel.tflite", inputSize);
+            facialExpressionRecognition = new facialExpressionRecognition(
+                    getAssets(),
+                    CameraActivity.this,
+                    "newmodel.tflite",
+                    inputSize
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -122,6 +130,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
         }
+        tts.stop();
     }
 
     public void onDestroy() {
@@ -129,11 +138,13 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
         }
+        tts.stop();
+        tts.shutdown();
     }
 
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4);
-        mGray = new Mat(height, width, CvType.CV_8UC1);
+//        mGray = new Mat(height, width, CvType.CV_8UC1);
     }
 
     public void onCameraViewStopped() {
@@ -142,9 +153,23 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
-        mGray = inputFrame.gray();
+//        mGray = inputFrame.gray();
+
         //output                                         input
-        mRgba = facialExpressionRecognition.recognizeImage(mRgba);
+        Result result = facialExpressionRecognition.recognizeImage(mRgba);
+        mRgba = result.mat;
+
+        // 결과 누적 및 계산
+        resultCalculator.setResult(result.type);
+
         return mRgba;
+    }
+
+    @Override
+    public void onResult() {
+        runOnUiThread(() -> {
+//            resultTv.setText();
+//            tts.speak(getString(R.string.), TextToSpeech.QUEUE_FLUSH, null, "");
+        });
     }
 }
