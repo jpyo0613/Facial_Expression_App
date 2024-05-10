@@ -1,8 +1,13 @@
 package com.example.imagepro
 
-class ResultCalculator(private val listener: Listener) {
+import android.content.Context
+
+class ResultCalculator(
+    private val context: Context,
+    private val listener: Listener
+) {
     interface Listener {
-        fun onResult()
+        fun onResult(text: String)
     }
 
     fun setResult(resultType: ResultType) {

@@ -1,5 +1,6 @@
 package com.example.imagepro;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -32,7 +33,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private CameraBridgeViewBase mOpenCvCameraView;
     private facialExpressionRecognition facialExpressionRecognition;
 
-    private ResultCalculator resultCalculator = new ResultCalculator(this);
+    private final ResultCalculator resultCalculator = new ResultCalculator(this, this);
 
     private final BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -166,10 +167,12 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     }
 
     @Override
-    public void onResult() {
+    public void onResult(@NonNull String text) {
         runOnUiThread(() -> {
-//            resultTv.setText();
-//            tts.speak(getString(R.string.), TextToSpeech.QUEUE_FLUSH, null, "");
+            resultTv.setText(text);
+            if (isModeBasic) {
+                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "1");
+            }
         });
     }
 }

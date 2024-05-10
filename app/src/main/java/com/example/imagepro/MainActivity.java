@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             while (isMainForeground) {
-                tts.speak(getString(R.string.guide_tts), TextToSpeech.QUEUE_FLUSH, null, "");
+                tts.speak(getString(R.string.guide_tts), TextToSpeech.QUEUE_FLUSH, null, "0");
                 Thread.sleep(Constants.GUIDE_TTS_DELAY);
             }
         } catch (InterruptedException ignored) {
