@@ -104,7 +104,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             facialExpressionRecognition = new facialExpressionRecognition(
                     getAssets(),
                     CameraActivity.this,
-                    "newmodel.tflite",
+                    "model300.tflite",
                     inputSize
             );
         } catch (IOException e) {
