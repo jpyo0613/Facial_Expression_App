@@ -50,6 +50,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private boolean isModeBasic = true;
     private TextView resultTv;
     private TextToSpeech tts;
+    private ResultType lastResultType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +169,11 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     @Override
     public void onResult(@NonNull ResultType type) {
+        if (lastResultType == type) {
+            return;
+        }
+        lastResultType = type;
+
         runOnUiThread(() -> {
             String result = "";
             switch (type) {

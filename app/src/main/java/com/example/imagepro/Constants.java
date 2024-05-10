@@ -28,9 +28,9 @@ public class Constants {
     // 예) CAMERA_RESULT_TIME 초가 지나고 같은 표정이 CAMERA_RESULT_COUNT_MIN 이상이면 결과 도출
     // 예) CAMERA_RESULT_TIME 지나지 않아도 CAMERA_RESULT_COUNT_LIMIT 이상이면 결과 도출
     // 위 상황에서 표정이 바뀌면 초기화하고 처음부터 다시 시작
-    public static final long CAMERA_RESULT_TIME = 1000;
-    public static final int CAMERA_RESULT_COUNT_MIN = 5;
-    public static final int CAMERA_RESULT_COUNT_LIMIT = 10;
+    public static final long CAMERA_RESULT_TIME = 1500;
+    public static final int CAMERA_RESULT_COUNT_MIN = 6;
+    public static final int CAMERA_RESULT_COUNT_LIMIT = 20;
 
     /**
      * 기타

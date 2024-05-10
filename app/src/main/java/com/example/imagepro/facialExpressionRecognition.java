@@ -195,7 +195,11 @@ public class facialExpressionRecognition {
         // after prediction
         // rotate mat_image -90 degree
         Core.flip(mat_image.t(), mat_image, 0);
-        result = new Result(resultType, mat_image);
+        if (faceArray.length == 0) {
+            result = new Result(ResultType.UNKNOWN, mat_image);
+        } else {
+            result = new Result(resultType, mat_image);
+        }
         return result;
     }
 

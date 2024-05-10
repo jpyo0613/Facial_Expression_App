@@ -24,8 +24,8 @@ public class ResultCalculator {
             }
             sameCount++;
             if (!sentCallback && (sameCount >= Constants.CAMERA_RESULT_COUNT_LIMIT ||
-                    lastChangedTime >= (currentTime - Constants.CAMERA_RESULT_TIME) ||
-                    sameCount >= Constants.CAMERA_RESULT_COUNT_MIN)
+                    (lastChangedTime >= currentTime - Constants.CAMERA_RESULT_TIME &&
+                    sameCount >= Constants.CAMERA_RESULT_COUNT_MIN))
             ) {
                 sentCallback = true;
                 listener.onResult(lastResultType);
