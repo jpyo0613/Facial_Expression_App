@@ -85,13 +85,7 @@ public class MainActivity extends AppCompatActivity {
             startGuideTTS();
         } else {
             clWarning.setVisibility(View.VISIBLE);
-            clWarning.postDelayed(() -> {
-                warningShown = true;
-                clWarning.setVisibility(View.GONE);
-                tts.stop();
-                startGuideTTS();
-            }, Constants.WARNING_DELAY);
-
+            clWarning.postDelayed(warningRunnable, Constants.WARNING_DELAY);
             if (!isFirstWarningTTSRun) {
                 startWarningTTS();
             }
@@ -102,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         isMainForeground = false;
+        clWarning.removeCallbacks(warningRunnable);
         tts.stop();
         stopGuideTTS();
     }
@@ -136,6 +131,13 @@ public class MainActivity extends AppCompatActivity {
             ttsGuideThread.interrupt();
         }
     }
+
+    private final Runnable warningRunnable = () -> {
+        warningShown = true;
+        clWarning.setVisibility(View.GONE);
+        tts.stop();
+        startGuideTTS();
+    };
 
     private final Runnable ttsRunnable = () -> {
         try {
