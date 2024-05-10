@@ -1,16 +1,17 @@
 package com.example.imagepro;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
@@ -32,9 +33,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     // call java class
     private facialExpressionRecognition facialExpressionRecognition;
 
-    /**
-     * 촬영 버튼
-     */
     private Button pickBtn;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -55,14 +53,11 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         }
     };
 
-    public CameraActivity() {
-        Log.i(TAG, "Instantiated new " + this.getClass());
-    }
+    private boolean isModeBasic = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -74,6 +69,17 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         }
 
         setContentView(R.layout.activity_camera);
+
+        // 모드 가져오기
+        Intent intent = getIntent();
+        if (intent != null) {
+            isModeBasic = intent.getBooleanExtra(Constants.KEY_CAMERA_IS_BASIC_MODE, true);
+        }
+
+        // 툴바 (뒤로가기, 앱이름)
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         // 찍기 버튼 초기화
         pickBtn = (Button) findViewById(R.id.btn_pick);
@@ -140,7 +146,5 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         //output                                         input
         mRgba = facialExpressionRecognition.recognizeImage(mRgba);
         return mRgba;
-
     }
-
 }

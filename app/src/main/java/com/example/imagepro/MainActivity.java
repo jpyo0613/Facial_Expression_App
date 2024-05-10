@@ -15,6 +15,7 @@ import org.opencv.android.OpenCVLoader;
 
 import java.util.Locale;
 
+// 메인 화면
 public class MainActivity extends AppCompatActivity {
     static {
         if (OpenCVLoader.initDebug()) {
@@ -24,7 +25,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // 경고화면 보여줬는지 여부
+
+    // 경고문구 보여줬는지 여부
     private volatile boolean warningShown = false;
     private ConstraintLayout clWarning;
 
@@ -32,10 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private volatile boolean isMainForeground = false;
     private Thread ttsGuideThread;
 
-    private static final long WARNING_DELAY = 1000 * 4;
-    private static final long GUIDE_TTS_DELAY = 1000 * 4;
-
-    TextToSpeech tts;
+    private TextToSpeech tts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,21 +48,28 @@ public class MainActivity extends AppCompatActivity {
 
         // 기본 모드 눌렀을 시
         basicModeBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
+            startCamera(true);
         });
 
         // 비시각장애인 모드 눌렀을 시
         nonModeBtn.setOnClickListener(v -> {
-
+            startCamera(false);
         });
 
         tts = new TextToSpeech(this, status -> {
             if (status != TextToSpeech.ERROR) {
                 tts.setLanguage(Locale.KOREAN);
+                tts.setPitch(Constants.TTS_PITCH);
+                tts.setSpeechRate(Constants.TTS_RATE);
             }
         });
+    }
+
+    private void startCamera(boolean isBasicMode) {
+        Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+        intent.putExtra(Constants.KEY_CAMERA_IS_BASIC_MODE, isBasicMode);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     @Override
@@ -76,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             clWarning.postDelayed(() -> {
                 warningShown = true;
                 clWarning.setVisibility(View.GONE);
-            }, WARNING_DELAY);
+            }, Constants.WARNING_DELAY);
         }
         startGuideTTS();
     }
@@ -91,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         warningShown = false;
+        tts.stop();
+        tts.shutdown();
         super.onDestroy();
     }
 
@@ -112,16 +120,17 @@ public class MainActivity extends AppCompatActivity {
         try {
             if (clWarning.getVisibility() == View.VISIBLE) {
                 // 경고문구가 끝나고 가이드 음성이 나오기 위한 sleep
-                Thread.sleep(WARNING_DELAY);
+                Thread.sleep(Constants.WARNING_DELAY);
             }
 
             while (isMainForeground) {
-                Thread.sleep(GUIDE_TTS_DELAY);
-                tts.speak("안녕하세요", TextToSpeech.QUEUE_FLUSH, null);
+                tts.speak(getString(R.string.guide_tts), TextToSpeech.QUEUE_FLUSH, null, "");
+                Thread.sleep(Constants.GUIDE_TTS_DELAY);
             }
         } catch (InterruptedException ignored) {
         } finally {
             isMainForeground = false;
+            tts.stop();
         }
     };
 }

@@ -10,5 +10,6 @@
     <string name="mode_basic">기본 모드</string>
     <string name="mode_basic_hint">고대비, 음성안내</string>
     <string name="mode_non">비시각장애인 모드</string>
+    <string name="guide_tts">화면 위쪽을 터치하면 시작합니다</string>
 
 </resources>
