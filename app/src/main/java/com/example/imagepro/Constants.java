@@ -7,6 +7,9 @@ public class Constants {
     // 경고 노출시간
     public static final long WARNING_DELAY = 1000 * 4;
 
+    // 경고 음성 시작 딜레이
+    public static final long WARNING_TTS_DELAY = 300;
+
     // N초 후 음성안내
     public static final long GUIDE_TTS_DELAY = 1000 * 15;
 
@@ -36,4 +39,7 @@ public class Constants {
      * 기타
      */
     public static final String KEY_CAMERA_IS_BASIC_MODE = "isBasicMode";
+    public static final String ID_TTS_WARNING_0 = "tts_0";
+    public static final String ID_TTS_GUIDE_0 = "tts_1";
+    public static final String ID_TTS_RESULT_0 = "tts_2";
 }

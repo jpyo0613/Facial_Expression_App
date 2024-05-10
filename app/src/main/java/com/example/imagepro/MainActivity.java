@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private Thread ttsGuideThread;
 
     private TextToSpeech tts;
+    private boolean isFirstWarningTTSRun = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +62,10 @@ public class MainActivity extends AppCompatActivity {
                 tts.setLanguage(Locale.KOREAN);
                 tts.setPitch(Constants.TTS_PITCH);
                 tts.setSpeechRate(Constants.TTS_RATE);
+                if (isFirstWarningTTSRun) {
+                    isFirstWarningTTSRun = false;
+                    startWarningTTS();
+                }
             }
         });
     }
@@ -77,14 +82,20 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         if (warningShown) {
             clWarning.setVisibility(View.GONE);
+            startGuideTTS();
         } else {
             clWarning.setVisibility(View.VISIBLE);
             clWarning.postDelayed(() -> {
                 warningShown = true;
                 clWarning.setVisibility(View.GONE);
+                tts.stop();
+                startGuideTTS();
             }, Constants.WARNING_DELAY);
+
+            if (!isFirstWarningTTSRun) {
+                startWarningTTS();
+            }
         }
-        startGuideTTS();
     }
 
     @Override
@@ -100,6 +111,15 @@ public class MainActivity extends AppCompatActivity {
         tts.stop();
         tts.shutdown();
         super.onDestroy();
+    }
+
+    private void startWarningTTS() {
+        clWarning.postDelayed(() -> tts.speak(
+                getString(R.string.warning_tts),
+                TextToSpeech.QUEUE_FLUSH,
+                null,
+                Constants.ID_TTS_WARNING_0
+        ), Constants.WARNING_TTS_DELAY);
     }
 
     private void startGuideTTS() {
@@ -118,13 +138,13 @@ public class MainActivity extends AppCompatActivity {
 
     private final Runnable ttsRunnable = () -> {
         try {
-            if (clWarning.getVisibility() == View.VISIBLE) {
-                // 경고문구가 끝나고 가이드 음성이 나오기 위한 sleep
-                Thread.sleep(Constants.WARNING_DELAY);
-            }
-
             while (isMainForeground) {
-                tts.speak(getString(R.string.guide_tts), TextToSpeech.QUEUE_FLUSH, null, "0");
+                tts.speak(
+                        getString(R.string.guide_tts),
+                        TextToSpeech.QUEUE_FLUSH,
+                        null,
+                        Constants.ID_TTS_GUIDE_0
+                );
                 Thread.sleep(Constants.GUIDE_TTS_DELAY);
             }
         } catch (InterruptedException ignored) {

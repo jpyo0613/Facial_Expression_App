@@ -205,7 +205,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
             resultTv.setText(result);
             if (isModeBasic) {
-                tts.speak(result, TextToSpeech.QUEUE_FLUSH, null, "1");
+                tts.speak(result, TextToSpeech.QUEUE_FLUSH, null, Constants.ID_TTS_RESULT_0);
             }
         });
     }

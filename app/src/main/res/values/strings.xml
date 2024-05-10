@@ -4,6 +4,7 @@
     <!-- 경고 문구 -->
     <string name="warning_title">경고문</string>
     <string name="warning_content">이 앱은 상대방 얼굴 영상을 사용합니다.\n반드시 상대방의 동의를 얻고 사용하세요.\n이어폰 사용을 권장합니다.</string>
+    <string name="warning_tts">상대방의 동의를 얻고 사용하세요</string>
 
     <!-- 메인 화면 -->
     <string name="mode_basic">기본 모드</string>
