@@ -20,7 +20,17 @@ public class Constants {
      * 카메라 페이지
      */
     // 카메라에 얼굴 인식 박스 유무
-    public static final boolean CAMERA_BOX = false;
+    public static final boolean CAMERA_BOX = true;
+
+    // 표정 결과 산정 설정값
+    // 몇초 안에 몇번 연속이면 결정할것인가?
+
+    // 예) CAMERA_RESULT_TIME 초가 지나고 같은 표정이 CAMERA_RESULT_COUNT_MIN 이상이면 결과 도출
+    // 예) CAMERA_RESULT_TIME 지나지 않아도 CAMERA_RESULT_COUNT_LIMIT 이상이면 결과 도출
+    // 위 상황에서 표정이 바뀌면 초기화하고 처음부터 다시 시작
+    public static final long CAMERA_RESULT_TIME = 1000;
+    public static final int CAMERA_RESULT_COUNT_MIN = 5;
+    public static final int CAMERA_RESULT_COUNT_LIMIT = 10;
 
     /**
      * 기타

@@ -33,7 +33,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private CameraBridgeViewBase mOpenCvCameraView;
     private facialExpressionRecognition facialExpressionRecognition;
 
-    private final ResultCalculator resultCalculator = new ResultCalculator(this, this);
+    private final ResultCalculator resultCalculator = new ResultCalculator(this);
 
     private final BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -167,11 +167,39 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     }
 
     @Override
-    public void onResult(@NonNull String text) {
+    public void onResult(@NonNull ResultType type) {
         runOnUiThread(() -> {
-            resultTv.setText(text);
+            String result = "";
+            switch (type) {
+                case SURPRISE:
+                    result = getString(R.string.surprise);
+                    break;
+                case FEAR:
+                    result = getString(R.string.fear);
+                    break;
+                case ANGRY:
+                    result = getString(R.string.angry);
+                    break;
+                case NEUTRAL:
+                    result = getString(R.string.neutral);
+                    break;
+                case SAD:
+                    result = getString(R.string.sad);
+                    break;
+                case DISGUST:
+                    result = getString(R.string.disgust);
+                    break;
+                case HAPPY:
+                    result = getString(R.string.happy);
+                    break;
+                default:
+                    result = getString(R.string.unknown);
+                    break;
+            }
+
+            resultTv.setText(result);
             if (isModeBasic) {
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "1");
+                tts.speak(result, TextToSpeech.QUEUE_FLUSH, null, "1");
             }
         });
     }

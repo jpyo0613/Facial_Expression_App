@@ -12,6 +12,7 @@
     <string name="guide_tts">화면 위쪽을 터치하면 시작합니다</string>
 
     <!-- 카메라 화면 -->
+    <string name="unknown">얼굴을 비춰주세요</string>
     <string name="surprise">놀람</string>
     <string name="fear">무서움</string>
     <string name="angry">화남</string>
