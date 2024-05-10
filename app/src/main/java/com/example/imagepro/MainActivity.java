@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         isMainForeground = false;
+        tts.stop();
         stopGuideTTS();
     }
 
